@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{filename}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Takayuki YAMAGUCHI"]
-  s.date = %q{2011-03-25}
+  s.date = %q{2011-03-26}
   s.description = %q{Create filename with sequential number or time string that is not duplicated.}
   s.email = %q{d@ytak.info}
   s.extra_rdoc_files = [
