@@ -7,36 +7,31 @@ autoload :FileUtils, 'fileutils'
 class FileName
 
   # The options are following:
-  # * :start
-  #     Fixnum
-  #     If ID string type is number, the ID starts from the specified number.
   # 
-  # * :digit
-  #     Fixnum
-  #     When we create additional part of a filename,
-  #     we use a string of ID number with specified digit.
+  # [:start (Fixnum)]
+  #  If ID string type is number, the ID starts from the specified number.
   # 
-  # * :delimiter
-  #     String
-  #     We use specified string for delimiter between base name and
-  #     additional part. Default is '.' if position is suffix. Otherwise, '_'.
+  # [:digit (Fixnum)]
+  #  When we create additional part of a filename,
+  #  we use a string of ID number with specified digit.
   # 
-  # * :type
-  #     :number or :time
-  #     We specify type of additional part: :number or :time.
-  #     Default is :number.
+  # [:delimiter (String)]
+  #  We use specified string for delimiter between base name and
+  #  additional part. Default is '.' if position is suffix. Otherwise, '_'.
   # 
-  # * :format
-  #     String or Proc
-  #     We specify format string of additional part or
-  #     proc object to create additional part.
-  #     If type is :time, the format string is used by Time#strftime.
-  #     For :number type, the string is a farst argument of sprintf(format, number).
-  #     Proc object takes an object of Time or Integer for respective types.
+  # [:type (:number or :time)]
+  #  We specify type of additional part: :number or :time.
+  #  Default is :number.
   # 
-  # * :position
-  #     :prefix, :suffix, or :middle
-  #     We specify of position of additional part of filename.
+  # [:format (String or Proc)]
+  #  We specify format string of additional part or
+  #  proc object to create additional part.
+  #  If type is :time, the format string is used by Time#strftime.
+  #  For :number type, the string is a farst argument of sprintf(format, number).
+  #  Proc object takes an object of Time or Integer for respective types.
+  # 
+  # [:position (:prefix, :suffix, or :middle)]
+  #  We specify of position of additional part of filename.
   def initialize(basepath, opts = {})
     @basepath = File.expand_path(basepath)
     @number = opts[:start] || 0
@@ -130,21 +125,18 @@ class FileName
   private :add_addition
 
   # The options are following:
-  # * :extension
-  #     String of extension
-  #     If we want to change extension, we set the value of the option.
+  # [:extension (String of extension)]
+  #  If we want to change extension, we set the value of the option.
   # 
-  # * :add
-  #     :always, :auto, or :prohibit
-  #     We specify if the additional part is used.
-  #       :always    Always add.
-  #       :auto      If specified file exists, add.
-  #       :prohibit  Even if specified file exists, not add.
+  # [:add (:always, :auto, or :prohibit)]
+  #  We specify if the additional part is used.
+  #  * :always    - We always add.
+  #  * :auto      - If the file exists, we add.
+  #  * :prohibit  - Even if the file exists, we do not add.
   # 
-  # * :directory
-  #     true or false
-  #     If the value is true and the parent directory does not exist,
-  #     we create the directory.
+  # [:directory (true or false)]
+  #  If the value is true and the parent directory does not exist,
+  #  we create the directory.
   def create(opts = {})
     base = get_basepath(opts[:extension])
     FileUtils.mkdir_p(File.dirname(base)) if opts[:directory]
