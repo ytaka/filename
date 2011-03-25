@@ -16,7 +16,7 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/ytaka/filename"
   gem.license = "GPLv3"
   gem.summary = "Filename generator"
-  gem.description = "Create not duplicated filename with sequential number or time string."
+  gem.description = "Create filename with sequential number or time string that is not duplicated."
   gem.email = "d@ytak.info"
   gem.authors = ["Takayuki YAMAGUCHI"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
