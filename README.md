@@ -20,7 +20,7 @@ Default options add suffixes and use additional parts of sequential numbers.
     filename = FileName.new('base.txt', :type => :time)
     p filename.create(:add => :always)    # For example, returns "/path/to/base.txt.20110326_073247_078247"
 
-### Cantrol adding additional parts
+### Control adding additional parts
 
     require 'filename'
     filename = FileName.new('base.txt')
@@ -55,8 +55,8 @@ Default options add suffixes and use additional parts of sequential numbers.
 ### Create parent directory
 
     require 'filename'
-    filename = FileName.new('base.txt')
-    p filename.create(:add => :always, :directory => true)
+    filename = FileName.new('dir/base.txt')
+    p filename.create(:add => :always, :directory => true)    # Create 'dir' directory.
 
 ### Change starting numbers and digits of sequential numbers
 
