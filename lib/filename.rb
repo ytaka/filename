@@ -6,6 +6,8 @@ autoload :FileUtils, 'fileutils'
 # 
 class FileName
 
+  OPTIONS_CREATE = [:extension, :add, :directory]
+
   # The options are following:
   # 
   # [:start (Fixnum)]
@@ -161,8 +163,7 @@ class FileName
     opts_new = {}
     opts_create = {}
     opts.each do |key, val|
-      case key
-      when :extension, :add, :directory
+      if OPTIONS_CREATE.include?(key)
         opts_create[key] = val
       else
         opts_new[key] = val
