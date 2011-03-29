@@ -123,40 +123,53 @@ describe FileName do
   end
 
   context "when we set the default options of FileName#create" do
+    NUMBER_TEST_REPEAT = 3
     
     it "should prohibit addition" do
       filename = FileName.new(__FILE__, :add => :prohibit)
-      filename.create.should == __FILE__
+      NUMBER_TEST_REPEAT.times do |i|
+        filename.create.should == __FILE__
+      end
     end
 
     it "should add always" do
       filename = FileName.new(__FILE__, :add => :always)
-      filename.create.should_not == __FILE__
+      NUMBER_TEST_REPEAT.times do |i|
+        filename.create.should_not == __FILE__
+      end
     end
 
     it "should add automatically" do
       filename = FileName.new(__FILE__, :add => :auto)
-      filename.create.should_not == __FILE__
+      NUMBER_TEST_REPEAT.times do |i|
+        filename.create.should_not == __FILE__
+      end
     end
 
     it "should return as it is" do
       name_not_exit = __FILE__ + Time.now.to_i.to_s
       filename = FileName.new(name_not_exit, :add => :auto)
-      filename.create.should == name_not_exit
+      NUMBER_TEST_REPEAT.times do |i|
+        filename.create.should == name_not_exit
+      end
     end
 
     it "should create parent directory" do
       basename = File.join(File.dirname(__FILE__), 'abc/def')
       filename = FileName.new(basename, :directory => true)
-      path = filename.create
-      check_create_directory(filename, basename, path)
+      NUMBER_TEST_REPEAT.times do |i|
+        path = filename.create
+        check_create_directory(filename, basename, path)
+      end
     end
 
     it "should change extension" do
       filename = FileName.new(__FILE__, :extension => 'txt', :add => :prohibit)
-      path = filename.create
-      path.should_not == __FILE__
-      path.should match(/\.txt$/)
+      NUMBER_TEST_REPEAT.times do |i|
+        path = filename.create
+        path.should_not == __FILE__
+        path.should match(/\.txt$/)
+      end
     end
   end
 
