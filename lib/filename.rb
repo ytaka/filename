@@ -192,4 +192,40 @@ class FileName
     self.new(basepath, opts).create
   end
 
+  @@configuration_directory = File.join(ENV['HOME'], '.filename_gem')
+  @@configuration = nil
+
+  def self.load_configuration
+    @@configuration = {}
+    # old_safe_level = $SAFE
+    # $SAFE = 2
+    Dir.glob(@@configuration_directory + '/*.rb') do |path|
+      if key = path.match(/\/([^\/]*)\.rb$/)[1]
+        @@configuration[key.intern] = eval(File.read(path))
+      end
+    end
+    # $SAFE = old_safe_level
+  end
+
+  def self.configuration(key, basepath)
+    self.load_configuration unless @@configuration
+    if opts = @@configuration[key]
+      return self.new(basepath, opts)
+    end
+    return nil
+  end
+
+  def self.save_configuration_example
+    FileUtils.mkdir_p(@@configuration_directory)
+    open(File.join(@@configuration_directory, 'process.rb.example'), 'w') do |f|
+      f.print <<SAMPLE
+{
+  :type => :number,
+  :position => :middle,
+  :path => :relative,
+  :format => lambda { |n| sprintf("%05d_%02d", Process.pid, n) }
+}
+SAMPLE
+    end
+  end
 end
