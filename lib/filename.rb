@@ -34,6 +34,15 @@ class FileName
   # 
   # [:position (:prefix, :suffix, or :middle)]
   #  We specify of position of additional part of filename.
+  #
+  # [:extension]
+  #  Default value of the option of FileName#create.
+  # 
+  # [:add]
+  #  Default value of the option of FileName#create.
+  #  
+  # [:directory]
+  #  Default value of the option of FileName#create.
   def initialize(basepath, opts = {})
     @basepath = File.expand_path(basepath)
     @number = opts[:start] || 0
@@ -43,6 +52,12 @@ class FileName
     @delimiter = opts[:delimiter] || (@position == :suffix ? '.' : '_')
     @format = opts[:format]
     @last_addition = nil
+    @default_create = {}
+    opts.each do |key, val|
+      if OPTIONS_CREATE.include?(key)
+        @default_create[key] = val
+      end
+    end
   end
 
   def get_basepath(extension = nil)
@@ -126,6 +141,11 @@ class FileName
   end
   private :add_addition
 
+  def get_option_create(opts, key)
+    opts.has_key?(key) ? opts[key] : @default_create[key]
+  end
+  private :get_option_create
+
   # The options are following:
   # [:extension (String of extension)]
   #  If we want to change extension, we set the value of the option.
@@ -140,12 +160,13 @@ class FileName
   #  If the value is true and the parent directory does not exist,
   #  we create the directory.
   def create(opts = {})
-    base = get_basepath(opts[:extension])
-    FileUtils.mkdir_p(File.dirname(base)) if opts[:directory]
-    if addition = get_addition(opts[:add], base)
+    base = get_basepath(get_option_create(opts, :extension))
+    FileUtils.mkdir_p(File.dirname(base)) if get_option_create(opts, :directory)
+    opt_add = get_option_create(opts, :add)
+    if addition = get_addition(opt_add, base)
       path = add_addition(base, addition)
       while File.exist?(path)
-        if addition = get_addition(opts[:add], base)
+        if addition = get_addition(opt_add, base)
           path = add_addition(base, addition)
         else
           raise "Can not create new filename."
@@ -158,19 +179,9 @@ class FileName
   end
 
   # Executing FileName.new and FileName.create, we get new filename.
-  # The options for both FileName.new and FileName#create are available.
+  # The same options of FileName.new are available.
   def self.create(basepath, opts = {})
-    opts_new = {}
-    opts_create = {}
-    opts.each do |key, val|
-      if OPTIONS_CREATE.include?(key)
-        opts_create[key] = val
-      else
-        opts_new[key] = val
-      end
-    end
-    fname = self.new(basepath, opts_new)
-    fname.create(opts_create)
+    self.new(basepath, opts).create
   end
 
 end

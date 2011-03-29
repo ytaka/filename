@@ -1,6 +1,12 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe FileName do
+  def check_create_directory(filename, basename, path)
+    dir = File.dirname(basename)
+    File.exist?(dir).should be_true
+    Dir.rmdir(dir)
+  end
+
   it "should return unchanged filename" do
     filename = FileName.new("abc.txt")
     filename.create.should == File.expand_path(File.dirname('.') + '/abc.txt')
@@ -102,13 +108,56 @@ describe FileName do
     name.should match(Regexp.new("_\\d+\\#{ext}"))
   end
 
+  it "should change extension" do
+    filename = FileName.new(__FILE__)
+    path = filename.create(:add => :prohibit, :extension => 'txt')
+    path.should_not == __FILE__
+    path.should match(/\.txt$/)
+  end
+
   it "should create parent directory" do
     basename = File.join(File.dirname(__FILE__), 'abc/def')
     filename = FileName.new(basename)
     path = filename.create(:directory => true)
-    dir = File.dirname(basename)
-    File.exist?(dir).should be_true
-    Dir.rmdir(dir)
+    check_create_directory(filename, basename, path)
+  end
+
+  context "when we set the default options of FileName#create" do
+    
+    it "should prohibit addition" do
+      filename = FileName.new(__FILE__, :add => :prohibit)
+      filename.create.should == __FILE__
+    end
+
+    it "should add always" do
+      filename = FileName.new(__FILE__, :add => :always)
+      filename.create.should_not == __FILE__
+    end
+
+    it "should add automatically" do
+      filename = FileName.new(__FILE__, :add => :auto)
+      filename.create.should_not == __FILE__
+    end
+
+    it "should return as it is" do
+      name_not_exit = __FILE__ + Time.now.to_i.to_s
+      filename = FileName.new(name_not_exit, :add => :auto)
+      filename.create.should == name_not_exit
+    end
+
+    it "should create parent directory" do
+      basename = File.join(File.dirname(__FILE__), 'abc/def')
+      filename = FileName.new(basename, :directory => true)
+      path = filename.create
+      check_create_directory(filename, basename, path)
+    end
+
+    it "should change extension" do
+      filename = FileName.new(__FILE__, :extension => 'txt', :add => :prohibit)
+      path = filename.create
+      path.should_not == __FILE__
+      path.should match(/\.txt$/)
+    end
   end
 
 end
