@@ -7,9 +7,16 @@ describe FileName do
     Dir.rmdir(dir)
   end
 
+  NOT_EXIST_FILE_PATH = 'abc.txt'
+
   it "should return unchanged filename" do
-    filename = FileName.new("abc.txt")
-    filename.create.should == File.expand_path(File.dirname('.') + '/abc.txt')
+    filename = FileName.new(NOT_EXIST_FILE_PATH)
+    filename.create.should == File.expand_path(File.dirname('.') + '/' + NOT_EXIST_FILE_PATH)
+  end
+
+  it "should return unchanged filename with relative path" do
+    filename = FileName.new("abc.txt", :add => :auto, :path => :relative)
+    filename.create.should == NOT_EXIST_FILE_PATH
   end
 
   it "should return new filename with number" do

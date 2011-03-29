@@ -34,6 +34,10 @@ class FileName
   # 
   # [:position (:prefix, :suffix, or :middle)]
   #  We specify of position of additional part of filename.
+  # 
+  # [:path]
+  #  We sepecify if path created by FileName#create is absolute or relative.
+  #  Default is absolute.
   #
   # [:extension]
   #  Default value of the option of FileName#create.
@@ -44,7 +48,11 @@ class FileName
   # [:directory]
   #  Default value of the option of FileName#create.
   def initialize(basepath, opts = {})
-    @basepath = File.expand_path(basepath)
+    if opts[:path] == :relative
+      @basepath = basepath
+    else
+      @basepath = File.expand_path(basepath)      
+    end
     @number = opts[:start] || 0
     @digit = opts[:digit] || 2
     @type = opts[:type] || :number
