@@ -129,6 +129,24 @@ describe FileName do
     check_create_directory(filename, basename, path)
   end
 
+  it "should conbine a few arguments" do
+    filename = FileName.new('abc', 'def', 'ghi')
+    filename.create.should == File.expand_path('abc/def/ghi')
+  end
+
+  it "should conbine a few arguments with hash option" do
+    filename = FileName.new('abc', 'def', 'ghi', :path => :relative, :add => :prohibit)
+    filename.create.should == 'abc/def/ghi'
+  end
+
+  it "should conbine a few arguments on FileName#create" do
+    FileName.create('abc', 'def', 'ghi').should == File.expand_path('abc/def/ghi')
+  end
+
+  it "should conbine a few arguments on FileName#create with hash option" do
+    FileName.create('abc', 'def', 'ghi', :path => :relative, :add => :prohibit).should == 'abc/def/ghi'
+  end
+
   context "when we set the default options of FileName#create" do
     NUMBER_TEST_REPEAT = 3
     

@@ -47,11 +47,17 @@ class FileName
   #  
   # [:directory]
   #  Default value of the option of FileName#create.
-  def initialize(basepath, opts = {})
-    if opts[:path] == :relative
-      @basepath = basepath
+  def initialize(basepath, *rest)
+    if Hash === rest[-1]
+      opts = rest.delete_at(-1)
     else
-      @basepath = File.expand_path(basepath)      
+      opts = {}
+    end
+    path = File.join(basepath, *rest)
+    if opts[:path] == :relative
+      @basepath = path
+    else
+      @basepath = File.expand_path(path)
     end
     @number = opts[:start] || 0
     @digit = opts[:digit] || 2
@@ -188,8 +194,8 @@ class FileName
 
   # Executing FileName.new and FileName.create, we get new filename.
   # The same options of FileName.new are available.
-  def self.create(basepath, opts = {})
-    self.new(basepath, opts).create
+  def self.create(basepath, *rest)
+    self.new(basepath, *rest).create
   end
 
   @@configuration_directory = File.join(ENV['HOME'], '.filename_gem')
@@ -207,10 +213,10 @@ class FileName
     # $SAFE = old_safe_level
   end
 
-  def self.configuration(key, basepath)
+  def self.configuration(key, basepath, *rest)
     self.load_configuration unless @@configuration
     if opts = @@configuration[key]
-      return self.new(basepath, opts)
+      return self.new(basepath, *rest, opts)
     end
     return nil
   end
