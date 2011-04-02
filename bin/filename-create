@@ -1,0 +1,102 @@
+#!/usr/bin/env ruby
+
+require File.expand_path(File.dirname(__FILE__) + "/../lib/filename")
+require 'optparse'
+
+help_message =<<HELP
+Usage: #{File.basename(__FILE__)}
+HELP
+
+options = {}
+create_cache = false
+
+begin
+  OptionParser.new(help_message) do |opt|
+    opt.on('--start NUM', Integer, 'Set the starting number.') do |v|
+      options[:start] = v
+    end
+    opt.on('--digit NUM', Integer, 'Set the digit of number.') do |v|
+      options[:digit] = v
+    end
+    opt.on('--delimiter STR', String, 'Set the delimiter string.') do |v|
+      options[:delimiter] = v
+    end
+    opt.on('--type TYPE', String, 'Set the type of additional part.') do |v|
+      options[:type] = v.intern
+    end
+    opt.on('--format STR', String, 'Set the format string.') do |v|
+      options[:format] = v
+    end
+    opt.on('--position POS', String, 'Set the position of additional part.') do |v|
+      options[:position] = v.intern
+    end
+    opt.on('--path TYPE', String, 'Set the type of path.') do |v|
+      options[:type] = v.intern
+    end
+    opt.on('--extension STR', String, 'Set the extension string.') do |v|
+      options[:extension] = v
+    end
+    opt.on('--add MODE', String, 'Change the behavior of additional part.') do |v|
+      options[:add] = v.intern
+    end
+    opt.on('--directory', 'Create parant directory.') do |v|
+      options[:directory] = true
+    end
+    opt.on('--cache KEY', String, 'Save cache.') do |v|
+      create_cache = v
+    end
+    opt.parse!(ARGV)
+  end
+rescue OptionParser::InvalidOption
+  $stderr.print <<MES
+error: Invalid Option
+#{help_message}
+MES
+  exit(2)
+rescue OptionParser::InvalidArgument
+  $stderr.print <<MES
+error: Invalid Argument
+#{help_message}
+MES
+  exit(2)
+end
+
+cmd = ARGV[0]
+
+case cmd
+when 'new'
+  fname = FileName.new(*ARGV[1..-1], options)
+  $stdout.puts fname.create
+  if create_cache
+    FileName.save_cache(create_cache, fname)
+  end
+  exit(0)
+when 'cache'
+  key = ARGV[1]
+  if fname = FileName.load_cache(key)
+    $stdout.puts fname.create
+    FileName.save_cache(key, fname)
+  end
+when 'list_cache'
+  FileName.list_cache.each do |name|
+    $stdout.puts name
+  end
+  exit(0)
+when 'delete_cache'
+  FileName.delete_cache(ARGV[1])
+when 'conf'
+  if fname = FileName.configuration(*ARGV[1..-1])
+    $stdout.puts fname.create(options)
+    if create_cache
+      FileName.save_cache(create_cache, fname)
+    end
+    exit(0)
+  else
+    exit(1)
+  end
+when 'list_conf'
+  FileName.list_configuration.each do |name|
+    $stdout.puts name
+  end
+  exit(0)
+end

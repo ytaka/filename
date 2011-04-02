@@ -192,6 +192,25 @@ class FileName
     end
   end
 
+  # If @format is a Proc object, we can not dump a FileName object.
+  def dump
+    Marshal.dump(self)
+  end
+
+  def save_to(path)
+    open(path, 'w') do |f|
+      f.print dump
+    end
+  end
+
+  def self.load(str)
+    Marshal.load(str)
+  end
+
+  def self.load_from(path)
+    self.load(File.read(path))
+  end
+
   # Executing FileName.new and FileName.create, we get new filename.
   # The same options of FileName.new are available.
   def self.create(basepath, *rest)
@@ -209,8 +228,8 @@ class FileName
     File.join(@@filename_directory, CONF_DIRECTORY)
   end
 
-  def self.cache_directory
-    File.join(@@filename_directory, CACHE_DIRECTORY)
+  def self.cache_directory(*file)
+    File.join(@@filename_directory, CACHE_DIRECTORY, *file)
   end
 
   def self.load_configuration
@@ -231,6 +250,35 @@ class FileName
       return self.new(basepath, *rest, opts)
     end
     return nil
+  end
+
+  def self.list_configuration
+    Dir.glob(self.configuration_directory + "/*.rb").map { |s| File.basename(s).sub(/\.rb$/, '') }.sort
+  end
+
+  def self.save_cache(key, filename)
+    dir = self.cache_directory
+    FileUtils.mkdir_p(dir)
+    filename.save_to(File.join(dir, key))
+  end
+
+  def self.load_cache(key)
+    path = self.cache_directory(key)
+    if File.exist?(path)
+      return FileName.load_from(path)
+    end
+    return nil
+  end
+
+  def self.delete_cache(key)
+    path = self.cache_directory(key)
+    if File.exist?(path)
+      FileUtils.rm(path)
+    end
+  end
+
+  def self.list_cache
+    Dir.glob(self.cache_directory + "/*").map { |s| File.basename(s) }.sort
   end
 
   def self.save_configuration_example
