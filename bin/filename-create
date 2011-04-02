@@ -44,7 +44,7 @@ begin
       options[:position] = v.intern
     end
     opt.on('-P TYPE', '--path TYPE', String, 'Set the type of path: absolute or relative.') do |v|
-      options[:type] = v.intern
+      options[:path] = v.intern
     end
     opt.on('-e STR', '--extension STR', String, 'Set the extension string.') do |v|
       options[:extension] = v
