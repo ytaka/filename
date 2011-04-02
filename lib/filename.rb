@@ -198,14 +198,26 @@ class FileName
     self.new(basepath, *rest).create
   end
 
-  @@configuration_directory = File.join(ENV['HOME'], '.filename_gem')
+  @@filename_directory = File.join(ENV['HOME'], '.filename_gem')
   @@configuration = nil
+
+  CONF_DIRECTORY = 'conf'
+  CACHE_DIRECTORY = 'cache'
+  SAMPLE_CONF_NAME = 'process.rb.example'
+
+  def self.configuration_directory
+    File.join(@@filename_directory, CONF_DIRECTORY)
+  end
+
+  def self.cache_directory
+    File.join(@@filename_directory, CACHE_DIRECTORY)
+  end
 
   def self.load_configuration
     @@configuration = {}
     # old_safe_level = $SAFE
     # $SAFE = 2
-    Dir.glob(@@configuration_directory + '/*.rb') do |path|
+    Dir.glob(self.configuration_directory + '/*.rb') do |path|
       if key = path.match(/\/([^\/]*)\.rb$/)[1]
         @@configuration[key.intern] = eval(File.read(path))
       end
@@ -215,15 +227,16 @@ class FileName
 
   def self.configuration(key, basepath, *rest)
     self.load_configuration unless @@configuration
-    if opts = @@configuration[key]
+    if opts = @@configuration[key.intern]
       return self.new(basepath, *rest, opts)
     end
     return nil
   end
 
   def self.save_configuration_example
-    FileUtils.mkdir_p(@@configuration_directory)
-    open(File.join(@@configuration_directory, 'process.rb.example'), 'w') do |f|
+    dir = self.configuration_directory
+    FileUtils.mkdir_p(dir)
+    open(File.join(dir, SAMPLE_CONF_NAME), 'w') do |f|
       f.print <<SAMPLE
 {
   :type => :number,
