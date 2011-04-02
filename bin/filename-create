@@ -3,49 +3,119 @@
 require File.expand_path(File.dirname(__FILE__) + "/../lib/filename")
 require 'optparse'
 
+basename = File.basename(__FILE__)
 help_message =<<HELP
-Usage: #{File.basename(__FILE__)}
+Usage: #{basename} <command> [arguments ...] [options ...]
+
+<command> is 'new', 'cache', 'list_cache', 'delete_cache', 'config', 'list_config', or 'init'.
+  #{basename} new <basename> [options ...]
+  #{basename} cache <cache_key> [options ...]
+  #{basename} list_cache
+  #{basename} delete_cache <cache_key> [...]
+  #{basename} config <config_key> [options ...]
+  #{basename} list_config
+  #{basename} init
+
 HELP
+
+Version = '0.0.4'
 
 options = {}
 create_cache = false
 
 begin
   OptionParser.new(help_message) do |opt|
-    opt.on('--start NUM', Integer, 'Set the starting number.') do |v|
+    opt.on('-s NUM', '--start NUM', Integer, 'Set the starting number.') do |v|
       options[:start] = v
     end
-    opt.on('--digit NUM', Integer, 'Set the digit of number.') do |v|
+    opt.on('-i NUM', '--digit NUM', Integer, 'Set the digit of number.') do |v|
       options[:digit] = v
     end
-    opt.on('--delimiter STR', String, 'Set the delimiter string.') do |v|
+    opt.on('-d STR', '--delimiter STR', String, 'Set the delimiter string: number or time.') do |v|
       options[:delimiter] = v
     end
-    opt.on('--type TYPE', String, 'Set the type of additional part.') do |v|
+    opt.on('-t TYPE', '--type TYPE', String, 'Set the type of additional part.') do |v|
       options[:type] = v.intern
     end
-    opt.on('--format STR', String, 'Set the format string.') do |v|
+    opt.on('-f STR', '--format STR', String, 'Set the format string.') do |v|
       options[:format] = v
     end
-    opt.on('--position POS', String, 'Set the position of additional part.') do |v|
+    opt.on('-p POS', '--position POS', String, 'Set the position of addition: prefix, suffix, or middle.') do |v|
       options[:position] = v.intern
     end
-    opt.on('--path TYPE', String, 'Set the type of path.') do |v|
+    opt.on('-P TYPE', '--path TYPE', String, 'Set the type of path: absolute or relative.') do |v|
       options[:type] = v.intern
     end
-    opt.on('--extension STR', String, 'Set the extension string.') do |v|
+    opt.on('-e STR', '--extension STR', String, 'Set the extension string.') do |v|
       options[:extension] = v
     end
-    opt.on('--add MODE', String, 'Change the behavior of additional part.') do |v|
+    opt.on('-a STR', '--add STR', String, 'Change the behavior of addition: always, auto, or prohibit.') do |v|
       options[:add] = v.intern
     end
-    opt.on('--directory', 'Create parant directory.') do |v|
+    opt.on('-D', '--directory', 'Create parant directory.') do |v|
       options[:directory] = true
     end
-    opt.on('--cache KEY', String, 'Save cache.') do |v|
+    opt.on('-c KEY', '--cache KEY', String, 'Create cache for command "new".') do |v|
       create_cache = v
     end
     opt.parse!(ARGV)
+  end
+
+  raise OptionParser::InvalidArgument if ARGV.size == 0
+
+  cmd = ARGV[0]
+  args = ARGV[1..-1]
+  manage = FileName.manage
+
+  case cmd
+  when 'new'
+    raise OptionParser::InvalidArgument if args.size == 0
+    fname = FileName.new(*args, options)
+    if create_cache
+      manage.save_cache(create_cache, fname)
+    else
+      $stdout.puts fname.create
+    end
+    exit(0)
+  when 'cache'
+    raise OptionParser::InvalidArgument if args.size != 1
+    key = args[0]
+    if fname = manage.load_cache(key)      
+      $stdout.puts fname.create
+      manage.save_cache(key, fname)
+      exit(0)
+    end
+    exit(1)
+  when 'list_cache'
+    manage.list_cache.each do |name|
+      $stdout.puts name
+    end
+    exit(0)
+  when 'delete_cache'
+    raise OptionParser::InvalidArgument if args.size == 0
+    args.each do |key|
+      manage.delete_cache(key)
+    end
+    exit(0)
+  when 'config'
+    raise OptionParser::InvalidArgument if args.size <= 1
+    if fname = FileName.configuration(*args)
+      if create_cache
+        manage.save_cache(create_cache, fname)
+      else
+        $stdout.puts fname.create(options)
+      end
+      exit(0)
+    end
+    exit(1)
+  when 'list_config'
+    manage.list_configuration.each do |name|
+      $stdout.puts name
+    end
+    exit(0)
+  when 'init'
+    manage.save_configuration_example
+    exit(0)
   end
 rescue OptionParser::InvalidOption
   $stderr.print <<MES
@@ -59,44 +129,4 @@ error: Invalid Argument
 #{help_message}
 MES
   exit(2)
-end
-
-cmd = ARGV[0]
-
-case cmd
-when 'new'
-  fname = FileName.new(*ARGV[1..-1], options)
-  $stdout.puts fname.create
-  if create_cache
-    FileName.save_cache(create_cache, fname)
-  end
-  exit(0)
-when 'cache'
-  key = ARGV[1]
-  if fname = FileName.load_cache(key)
-    $stdout.puts fname.create
-    FileName.save_cache(key, fname)
-  end
-when 'list_cache'
-  FileName.list_cache.each do |name|
-    $stdout.puts name
-  end
-  exit(0)
-when 'delete_cache'
-  FileName.delete_cache(ARGV[1])
-when 'conf'
-  if fname = FileName.configuration(*ARGV[1..-1])
-    $stdout.puts fname.create(options)
-    if create_cache
-      FileName.save_cache(create_cache, fname)
-    end
-    exit(0)
-  else
-    exit(1)
-  end
-when 'list_conf'
-  FileName.list_configuration.each do |name|
-    $stdout.puts name
-  end
-  exit(0)
 end

@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe FileName do
   before(:all) do
-    @filename = FileName.new('abc', 'def.txt', :format => lambda { |n| sprintf("%03d", n) })
+    @filename = FileName.new('abc', 'def.txt')
   end
 
   it "should dump and load" do

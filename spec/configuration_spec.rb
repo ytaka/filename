@@ -4,15 +4,15 @@ describe FileName do
   context "when saving example of configuration" do
     before(:all) do
       @dir = File.join(File.dirname(__FILE__), 'conf.tmp')
-      FileName.class_variable_set(:@@filename_directory, @dir)
+      FileName::Manage.class_variable_set(:@@filename_directory, @dir)
     end
 
     it "should create directory" do
-      FileName.save_configuration_example
+      FileName::Manage.new.save_configuration_example
       File.exist?(@dir).should be_true
-      conf_dir = File.join(@dir, FileName::CONF_DIRECTORY)
+      conf_dir = File.join(@dir, FileName::Manage::CONF_DIRECTORY)
       File.exist?(conf_dir).should be_true
-      Dir.entries(conf_dir).should include(FileName::SAMPLE_CONF_NAME)
+      Dir.entries(conf_dir).should include(FileName::Manage::SAMPLE_CONF_NAME)
     end
 
     after(:all) do
@@ -23,9 +23,9 @@ describe FileName do
   context "when loading configuration" do
     before(:all) do
       @dir = File.join(File.dirname(__FILE__), 'conf.tmp')
-      FileName.class_variable_set(:@@filename_directory, @dir)
-      FileName.save_configuration_example
-      path = File.join(@dir, FileName::CONF_DIRECTORY, FileName::SAMPLE_CONF_NAME)
+      FileName::Manage.class_variable_set(:@@filename_directory, @dir)
+      FileName::Manage.new.save_configuration_example
+      path = File.join(@dir, FileName::Manage::CONF_DIRECTORY, FileName::Manage::SAMPLE_CONF_NAME)
       FileUtils.mv(path, path.sub(/\.example$/, ''))
       @conf = File.basename(path.sub(/\.rb\.example$/, ''))
     end

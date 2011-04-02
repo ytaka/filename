@@ -217,75 +217,87 @@ class FileName
     self.new(basepath, *rest).create
   end
 
-  @@filename_directory = File.join(ENV['HOME'], '.filename_gem')
-  @@configuration = nil
+  @@manage = nil
 
-  CONF_DIRECTORY = 'conf'
-  CACHE_DIRECTORY = 'cache'
-  SAMPLE_CONF_NAME = 'process.rb.example'
-
-  def self.configuration_directory
-    File.join(@@filename_directory, CONF_DIRECTORY)
+  def self.manage
+    @@manage = FileName::Manage.new unless @@manage
+    @@manage
   end
 
-  def self.cache_directory(*file)
-    File.join(@@filename_directory, CACHE_DIRECTORY, *file)
+  def self.configuration(*args)
+    self.manage.configuration(*args)
   end
 
-  def self.load_configuration
-    @@configuration = {}
-    # old_safe_level = $SAFE
-    # $SAFE = 2
-    Dir.glob(self.configuration_directory + '/*.rb') do |path|
-      if key = path.match(/\/([^\/]*)\.rb$/)[1]
-        @@configuration[key.intern] = eval(File.read(path))
+  class Manage
+    @@filename_directory = File.join(ENV['HOME'], '.filename_gem')
+    @@configuration = nil
+
+    CONF_DIRECTORY = 'conf'
+    CACHE_DIRECTORY = 'cache'
+    SAMPLE_CONF_NAME = 'process.rb.example'
+
+    def configuration_directory
+      File.join(@@filename_directory, CONF_DIRECTORY)
+    end
+
+    def cache_directory(*file)
+      File.join(@@filename_directory, CACHE_DIRECTORY, *file)
+    end
+
+    def load_configuration
+      @@configuration = {}
+      # old_safe_level = $SAFE
+      # $SAFE = 2
+      Dir.glob(configuration_directory + '/*.rb') do |path|
+        if key = path.match(/\/([^\/]*)\.rb$/)[1]
+          @@configuration[key.intern] = eval(File.read(path))
+        end
+      end
+      # $SAFE = old_safe_level
+    end
+
+    def configuration(key, basepath, *rest)
+      load_configuration unless @@configuration
+      if opts = @@configuration[key.intern]
+        return FileName.new(basepath, *rest, opts)
+      end
+      return nil
+    end
+
+    def list_configuration
+      Dir.glob(configuration_directory + "/*.rb").map { |s| File.basename(s).sub(/\.rb$/, '') }.sort
+    end
+
+    def save_cache(key, filename)
+      dir = cache_directory
+      FileUtils.mkdir_p(dir)
+      filename.save_to(File.join(dir, key))
+    end
+
+    def load_cache(key)
+      path = cache_directory(key)
+      if File.exist?(path)
+        return FileName.load_from(path)
+      end
+      return nil
+    end
+
+    def delete_cache(key)
+      path = cache_directory(key)
+      if File.exist?(path)
+        FileUtils.rm(path)
       end
     end
-    # $SAFE = old_safe_level
-  end
 
-  def self.configuration(key, basepath, *rest)
-    self.load_configuration unless @@configuration
-    if opts = @@configuration[key.intern]
-      return self.new(basepath, *rest, opts)
+    def list_cache
+      Dir.glob(cache_directory + "/*").map { |s| File.basename(s) }.sort
     end
-    return nil
-  end
 
-  def self.list_configuration
-    Dir.glob(self.configuration_directory + "/*.rb").map { |s| File.basename(s).sub(/\.rb$/, '') }.sort
-  end
-
-  def self.save_cache(key, filename)
-    dir = self.cache_directory
-    FileUtils.mkdir_p(dir)
-    filename.save_to(File.join(dir, key))
-  end
-
-  def self.load_cache(key)
-    path = self.cache_directory(key)
-    if File.exist?(path)
-      return FileName.load_from(path)
-    end
-    return nil
-  end
-
-  def self.delete_cache(key)
-    path = self.cache_directory(key)
-    if File.exist?(path)
-      FileUtils.rm(path)
-    end
-  end
-
-  def self.list_cache
-    Dir.glob(self.cache_directory + "/*").map { |s| File.basename(s) }.sort
-  end
-
-  def self.save_configuration_example
-    dir = self.configuration_directory
-    FileUtils.mkdir_p(dir)
-    open(File.join(dir, SAMPLE_CONF_NAME), 'w') do |f|
-      f.print <<SAMPLE
+    def save_configuration_example
+      dir = configuration_directory
+      FileUtils.mkdir_p(dir)
+      open(File.join(dir, SAMPLE_CONF_NAME), 'w') do |f|
+        f.print <<SAMPLE
 {
   :type => :number,
   :position => :middle,
@@ -293,6 +305,9 @@ class FileName
   :format => lambda { |n| sprintf("%05d_%02d", Process.pid, n) }
 }
 SAMPLE
+      end
     end
+
   end
+
 end
