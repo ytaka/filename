@@ -1,7 +1,21 @@
 # filename
 
-The class to create filename that is not duplicated.
+This gem includs the class FileName to create filename that is not duplicated
+and command 'filename-create' for shell.
 We select type of additional part of filename: number or time.
+
+## Installation
+
+    gem install filename
+
+## How to use as library
+
+We need to require 'filename'.
+
+    require 'filename'
+
+And then we create method for an instance of FileName or
+class method FileName.create.
 
 ### Filenames with sequential numbers
 
@@ -83,6 +97,35 @@ Default options add suffixes and use additional parts of sequential numbers.
     
     filename = FileName.new('base.txt', :start => 10, :format => lambda { |t| t.usec.to_s })
     p filename.create(:add => :always)    # For example, returns "/path/to/base.txt.849963"
+
+## How to use command 'filename-create'
+
+filename-create with 'new' and basename puts path of file.
+
+    filename-create new basename
+
+We can use the corresponding options to optional arguments of
+FileName#create.
+
+    -s, --start NUM                  Set the starting number.
+    -i, --digit NUM                  Set the digit of number.
+    -d, --delimiter STR              Set the delimiter string: number or time.
+    -t, --type TYPE                  Set the type of additional part.
+    -f, --format STR                 Set the format string.
+    -p, --position POS               Set the position of addition: prefix, suffix, or middle.
+    -P, --path TYPE                  Set the type of path: absolute or relative.
+    -e, --extension STR              Set the extension string.
+    -a, --add STR                    Change the behavior of addition: always, auto, or prohibit.
+    -D, --directory                  Create parant directory.
+
+To create sequential filenames, we call 'filename-create new' with '--cache' option
+and then 'filename-create cache'.
+
+    filename-create new basename --add always --cache base
+    filename-create cache base
+      /path/to/basename.00
+    filename-create cache base
+      /pat/to/basename.01
 
 ## Contributing to filename
  
