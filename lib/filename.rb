@@ -40,13 +40,19 @@ class FileName
   # [:path]
   #  We sepecify if path created by FileName#create is absolute or relative.
   #  Default is absolute.
-  #
+  # 
+  # [:data]
+  #  We specify hash expressing instance variables for evaluation of format proc,
+  #  which is set by an option :format.
+  #  If we set { :a => 1, :b => 2 } for :data option,
+  #  we can use @a and @b in proc object set by :format option.
+  # 
   # [:extension]
   #  Default value of the option of FileName#create.
   # 
   # [:add]
   #  Default value of the option of FileName#create.
-  #  
+  # 
   # [:directory]
   #  Default value of the option of FileName#create.
   def initialize(basepath, *rest)
@@ -75,6 +81,12 @@ class FileName
       end
     end
     @configuration_key = nil
+    @data = Object.new
+    if opts[:data]
+      opts[:data].each do |key, val|
+        @data.instance_variable_set("@#{key}", val)
+      end
+    end
   end
 
   def get_basepath(extension = nil)
@@ -97,7 +109,7 @@ class FileName
     when String
       t.strftime(@format)
     when Proc
-      @format.call(t)
+      @data.instance_exec(t, &@format)
     else
       t.strftime("%Y%m%d_%H%M%S_") + sprintf("%06d", t.usec)
     end
@@ -109,7 +121,7 @@ class FileName
     when String
       sprintf(@format, number)
     when Proc
-      @format.call(number)
+      @data.instance_exec(number, &@format)
     else
       sprintf("%0#{@digit}d", number)  
     end

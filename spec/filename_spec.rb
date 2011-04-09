@@ -53,6 +53,12 @@ describe FileName do
     filename.create.should match(/\.009$/)
   end
 
+  it "should set variables for evaluation of format proc" do
+    filename = FileName.new(__FILE__, :start => 3, :data => { :a => 'hello', :b => 'world' },
+                            :format => lambda { |n| sprintf("%03d_#{@a}_#{@b}", n * n) })
+    filename.create.should match(/\.009_hello_world$/)
+  end
+
   it "should raise error" do
     filename = FileName.new(__FILE__, :format => "")
     lambda do
