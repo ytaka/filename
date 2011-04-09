@@ -125,6 +125,7 @@ FileName#create.
     -s, --start NUM                  Set the starting number.
     -i, --digit NUM                  Set the digit of number.
     -d, --delimiter STR              Set the delimiter string: number or time.
+    -n, --no-delimiter               Do not use delimiter.
     -t, --type TYPE                  Set the type of additional part.
     -f, --format STR                 Set the format string.
     -p, --position POS               Set the position of addition: prefix, suffix, or middle.

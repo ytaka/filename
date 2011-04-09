@@ -34,6 +34,9 @@ begin
     opt.on('-d STR', '--delimiter STR', String, 'Set the delimiter string: number or time.') do |v|
       options[:delimiter] = v
     end
+    opt.on('-n', '--no-delimiter', "Do not use delimiter.") do |v|
+      options[:delimiter] = ''
+    end
     opt.on('-t TYPE', '--type TYPE', String, 'Set the type of additional part.') do |v|
       options[:type] = v.intern
     end
