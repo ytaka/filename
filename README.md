@@ -91,7 +91,7 @@ Default options add suffixes and use additional parts of sequential numbers.
     filename = FileName.new('base.txt', :format => "@%03d@")
     p filename.create(:add => :always)    # => "/path/to/base.txt.@000@"
     
-    filename = FileName.new('base.txt', :type => :time, :format => lambda { |n| sprintf("%03d", n * n) })
+    filename = FileName.new('base.txt', :type => :number, :format => lambda { |n| sprintf("%03d", n * n) })
     p filename.create(:add => :always)    # => "/path/to/base.txt.100"
     p filename.create(:add => :always)    # => "/path/to/base.txt.121"
 
@@ -103,6 +103,15 @@ Default options add suffixes and use additional parts of sequential numbers.
     
     filename = FileName.new('base.txt', :start => 10, :format => lambda { |t| t.usec.to_s })
     p filename.create(:add => :always)    # For example, returns "/path/to/base.txt.849963"
+
+### Use of variable for proc set by :format option
+
+    require 'filename'
+    filename = FileName.new('base.txt', :data => { :a => 3 },
+                            :format => lambda { |n| s = sprintf("%03d", @a * n); @a += 2; s })
+    p filename.create(:add => :always)    # => "/path/to/base.txt.000"
+    p filename.create(:add => :always)    # => "/path/to/base.txt.005"
+    p filename.create(:add => :always)    # => "/path/to/base.txt.014"
 
 ## How to use command 'filename-create'
 
