@@ -70,7 +70,13 @@ Default options add suffixes and use additional parts of sequential numbers.
 
     require 'filename'
     filename = FileName.new('dir/base.txt')
-    p filename.create(:add => :always, :directory => true)    # Create 'dir' directory.
+    p filename.create(:add => :always, :directory => :parent)    # Create 'dir' directory.
+
+### Create directory of created filename
+
+    require 'filename'
+    filename = FileName.new('dir1/dir2')
+    p filename.create(:add => :always, :directory => :self)    # Create 'dir1/dir2' directory.
 
 ### Change starting numbers and digits of sequential numbers
 
@@ -116,7 +122,7 @@ FileName#create.
     -P, --path TYPE                  Set the type of path: absolute or relative.
     -e, --extension STR              Set the extension string.
     -a, --add STR                    Change the behavior of addition: always, auto, or prohibit.
-    -D, --directory                  Create parant directory.
+    -D, --directory STR              Create directory: self or parent.
 
 To create sequential filenames, we call 'filename-create new' with '--cache' option
 and then 'filename-create cache'.
