@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe FileName do
-  def check_create_directory(filename, basename, path)
+  def check_creation_of_parent_directory(basename, path)
     dir = File.dirname(basename)
     File.exist?(dir).should be_true
     Dir.rmdir(dir)
@@ -125,8 +125,16 @@ describe FileName do
   it "should create parent directory" do
     basename = File.join(File.dirname(__FILE__), 'abc/def')
     filename = FileName.new(basename)
-    path = filename.create(:directory => true)
-    check_create_directory(filename, basename, path)
+    path = filename.create(:directory => :parent)
+    check_creation_of_parent_directory(basename, path)
+  end
+
+  it "should create directory of filename" do
+    basename = File.join(File.dirname(__FILE__), 'abc/def')
+    filename = FileName.new(basename)
+    path = filename.create(:directory => :self)
+    File.exist?(path).should be_true
+    FileUtils.rm_r(File.dirname(path))
   end
 
   it "should conbine a few arguments" do
@@ -181,10 +189,20 @@ describe FileName do
 
     it "should create parent directory" do
       basename = File.join(File.dirname(__FILE__), 'abc/def')
-      filename = FileName.new(basename, :directory => true)
+      filename = FileName.new(basename, :directory => :parent)
       NUMBER_TEST_REPEAT.times do |i|
         path = filename.create
-        check_create_directory(filename, basename, path)
+        check_creation_of_parent_directory(basename, path)
+      end
+    end
+
+    it "should create directory of filename" do
+      basename = File.join(File.dirname(__FILE__), 'abc/def')
+      filename = FileName.new(basename, :directory => :self, :add => :always)
+      NUMBER_TEST_REPEAT.times do |i|
+        path = filename.create
+        File.exist?(path).should be_true
+        FileUtils.rm_r(File.dirname(path))
       end
     end
 

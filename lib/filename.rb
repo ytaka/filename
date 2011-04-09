@@ -160,6 +160,21 @@ class FileName
   end
   private :get_option_create
 
+  def create_directory(base, dir_opt)
+    if dir_opt
+      case dir_opt
+      when :self
+        dir = base
+      when :parent
+        dir = File.dirname(base)
+      else
+        raise ArgumentError, "Invalid directory option."
+      end
+      FileUtils.mkdir_p(dir)
+    end
+  end
+  private :create_directory
+
   # The options are following:
   # [:extension (String of extension)]
   #  If we want to change extension, we set the value of the option.
@@ -170,12 +185,11 @@ class FileName
   #  * :auto      - If the file exists, we add.
   #  * :prohibit  - Even if the file exists, we do not add.
   # 
-  # [:directory (true or false)]
-  #  If the value is true and the parent directory does not exist,
-  #  we create the directory.
+  # [:directory (:self, :parent, or nil)]
+  #  If the value is :self, we make directory of created filename.
+  #  If the value is :parent, we make parent directory of created filename.
   def create(opts = {})
     base = get_basepath(get_option_create(opts, :extension))
-    FileUtils.mkdir_p(File.dirname(base)) if get_option_create(opts, :directory)
     opt_add = get_option_create(opts, :add)
     if addition = get_addition(opt_add, base)
       path = add_addition(base, addition)
@@ -188,8 +202,10 @@ class FileName
       end
       path
     else
-      base
+      path = base
     end
+    create_directory(path, get_option_create(opts, :directory))
+    path
   end
 
   # If @format is a Proc object, we can not dump a FileName object.
