@@ -144,6 +144,8 @@ and then 'filename-create cache'.
     filename-create cache base
       /pat/to/basename.01
 
+Note that invalid values of options are ignored mostly.
+
 ## Contributing to filename
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet

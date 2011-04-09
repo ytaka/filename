@@ -69,6 +69,9 @@ class FileName
     end
     @number = opts[:start] || 0
     @digit = opts[:digit] || 2
+    if @digit < 1
+      raise ArgumentError, "Number of digit must be positive."
+    end
     @type = opts[:type] || :number
     @position = opts[:position] || :suffix
     @delimiter = opts[:delimiter] || (@position == :suffix ? '.' : '_')

@@ -119,6 +119,9 @@ begin
   when 'init'
     manage.save_configuration_example
     exit(0)
+  else
+    raise OptionParser::InvalidArgument
+    exit(1)
   end
 rescue OptionParser::InvalidOption
   $stderr.print <<MES
