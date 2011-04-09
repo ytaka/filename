@@ -1,6 +1,6 @@
 # filename
 
-This gem includs the class FileName to create filename that is not duplicated
+This gem includes the class FileName to create filename that is not duplicated
 and command 'filename-create' for shell.
 We select type of additional part of filename: number or time.
 
@@ -42,7 +42,7 @@ Default options add suffixes and use additional parts of sequential numbers.
     p filename.create(:add => :prohibit)  # Always returns "/path/to/base.txt"
     p filename.create(:add => :auto)      # If the file exist, returns "/path/to/base.txt.00". Otherwise, "/path/to/base.txt"
 
-### Add additinal parts to prefix or middle position
+### Add additional parts to prefix or middle position
 
     require 'filename'
     filename = FileName.new('base.txt', :position => :prefix)
