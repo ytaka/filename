@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{filename}
-  s.version = "0.0.4"
+  s.version = "0.0.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Takayuki YAMAGUCHI"]
-  s.date = %q{2011-04-02}
+  s.date = %q{2011-04-09}
   s.description = %q{Create filename with sequential number or time string that is not duplicated.}
   s.email = %q{d@ytak.info}
   s.executables = ["filename-create"]
@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/ytaka/filename}
   s.licenses = ["GPLv3"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.7.1}
+  s.rubygems_version = %q{1.7.2}
   s.summary = %q{Filename generator}
   s.test_files = [
     "spec/cache_spec.rb",
