@@ -11,4 +11,10 @@ describe FileName do
     FileName.load(s).should be_an_instance_of FileName
   end
 
+  it "should not be able to dump" do
+    filename = FileName.new('abc', :format => lambda { |n| sprintf("%02d", n * n) })
+    lambda do
+      filename.dump
+    end.should raise_error
+  end
 end

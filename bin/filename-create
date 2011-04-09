@@ -80,7 +80,7 @@ begin
   when 'cache'
     raise OptionParser::InvalidArgument if args.size != 1
     key = args[0]
-    if fname = manage.load_cache(key)      
+    if fname = manage.load_cache(key)
       $stdout.puts fname.create
       manage.save_cache(key, fname)
       exit(0)
@@ -99,7 +99,7 @@ begin
     exit(0)
   when 'config'
     raise OptionParser::InvalidArgument if args.size <= 1
-    if fname = FileName.configuration(*args)
+    if fname = FileName.configuration(*args, options)
       if create_cache
         manage.save_cache(create_cache, fname)
       else

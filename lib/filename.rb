@@ -6,6 +6,8 @@ autoload :FileUtils, 'fileutils'
 # 
 class FileName
 
+  attr_accessor :configuration_key, :format
+
   OPTIONS_CREATE = [:extension, :add, :directory]
 
   # The options are following:
@@ -72,6 +74,7 @@ class FileName
         @default_create[key] = val
       end
     end
+    @configuration_key = nil
   end
 
   def get_basepath(extension = nil)
@@ -209,8 +212,20 @@ class FileName
   end
 
   # If @format is a Proc object, we can not dump a FileName object.
+  # But, even if @format is Proc object, the object created from configuration
+  # can be dumped.
   def dump
-    Marshal.dump(self)
+    if not Proc === @format
+      dumped = Marshal.dump(self)
+    elsif @configuration_key
+      tmp = @format
+      @format = nil
+      dumped = Marshal.dump(self)
+      @format = tmp
+    else
+      raise "Can not dump."
+    end
+    dumped
   end
 
   def save_to(path)
@@ -220,7 +235,12 @@ class FileName
   end
 
   def self.load(str)
-    Marshal.load(str)
+    filename = Marshal.load(str)
+    if key = filename.configuration_key
+      opts = self.manage.configuration_setting(key)
+      filename.format = opts[:format]
+    end
+    filename
   end
 
   def self.load_from(path)
@@ -272,10 +292,19 @@ class FileName
       # $SAFE = old_safe_level
     end
 
-    def configuration(key, basepath, *rest)
+    def configuration_setting(key)
       load_configuration unless @@configuration
-      if opts = @@configuration[key.intern]
-        return FileName.new(basepath, *rest, opts)
+      @@configuration[key.intern]
+    end
+
+    def configuration(key, basepath, *rest)
+      if opts = configuration_setting(key)
+        if Hash === rest[-1]
+          opts = opts.merge(rest.delete_at(-1))
+        end
+        filename = FileName.new(basepath, *rest, opts)
+        filename.configuration_key = key
+        return filename
       end
       return nil
     end

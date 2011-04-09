@@ -34,6 +34,16 @@ describe FileName do
       FileName.configuration(@conf, 'base.path').should be_an_instance_of(FileName)
     end
 
+    it "should return key" do
+      FileName.configuration(@conf, 'base.path').configuration_key.should == @conf
+    end
+
+    it "should dump and load" do
+      s = FileName.configuration(@conf, 'base.path').dump
+      s.should be_an_instance_of String
+      FileName.load(s).should be_an_instance_of FileName
+    end
+
     it "should return nil" do
       FileName.configuration(:not_exist, 'base.path').should be_nil
     end
