@@ -132,6 +132,7 @@ FileName#create.
     -e, --extension STR              Set the extension string.
     -a, --add STR                    Change the behavior of addition: always, auto, or prohibit.
     -D, --directory STR              Create directory: self or parent.
+    -c, --cache KEY                  Create cache for command "new" and "config".
 
 To create sequential filenames, we call 'filename-create new' with '--cache' option
 and then 'filename-create cache'.

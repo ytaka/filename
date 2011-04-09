@@ -55,7 +55,7 @@ begin
     opt.on('-D STR', '--directory STR', String, 'Create directory: self or parent.') do |v|
       options[:directory] = v.intern
     end
-    opt.on('-c KEY', '--cache KEY', String, 'Create cache for command "new".') do |v|
+    opt.on('-c KEY', '--cache KEY', String, 'Create cache for command "new" and "config".') do |v|
       create_cache = v
     end
     opt.parse!(ARGV)
