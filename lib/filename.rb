@@ -8,7 +8,7 @@ class FileName
 
   attr_accessor :configuration_key, :format
 
-  OPTIONS_CREATE = [:extension, :add, :directory]
+  OPTIONS_CREATE = [:extension, :add, :directory, :file]
 
   # The options are following:
   # 
@@ -54,6 +54,9 @@ class FileName
   #  Default value of the option of FileName#create.
   # 
   # [:directory]
+  #  Default value of the option of FileName#create.
+  # 
+  # [:file]
   #  Default value of the option of FileName#create.
   def initialize(basepath, *rest)
     if Hash === rest[-1]
@@ -193,6 +196,28 @@ class FileName
   end
   private :create_directory
 
+  def touch_file(path)
+    FileUtils.mkdir_p(File.dirname(path))
+    open(path, 'w') {}
+  end
+  private :touch_file
+
+  def write_file(path, file_opt)
+    if file_opt
+      case file_opt
+      when :write
+        unless File.exist?(path)
+          touch_file(path)
+        end
+      when :overwrite
+        touch_file(path)
+      else
+        raise ArgumentError, "Invalid file option."
+      end
+    end
+  end
+  private :write_file
+
   # The options are following:
   # [:extension (String of extension)]
   #  If we want to change extension, we set the value of the option.
@@ -206,6 +231,12 @@ class FileName
   # [:directory (:self, :parent, or nil)]
   #  If the value is :self, we make directory of created filename.
   #  If the value is :parent, we make parent directory of created filename.
+  #  If the value is nil, we do nothing.
+  # 
+  # [:file]
+  #  If the value is :overwrite, we create a new empty file.
+  #  If the value is :write and the file does not exist, we create an empty file.
+  #  If the value is nil, we do nothing.
   def create(opts = {})
     base = get_basepath(get_option_create(opts, :extension))
     opt_add = get_option_create(opts, :add)
@@ -223,6 +254,7 @@ class FileName
       path = base
     end
     create_directory(path, get_option_create(opts, :directory))
+    write_file(path, get_option_create(opts, :file))
     path
   end
 

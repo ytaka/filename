@@ -143,6 +143,25 @@ describe FileName do
     FileUtils.rm_r(File.dirname(path))
   end
 
+  it "should create empty file" do
+    basename = File.join(File.dirname(__FILE__), 'abc/def')
+    filename = FileName.new(basename)
+    path = filename.create(:file => :write)
+    File.exist?(path).should be_true
+    File.read(path).should == ''
+    FileUtils.rm_r(File.dirname(path))
+  end
+
+  it "should overwrite empty file" do
+    basename = File.join(File.dirname(__FILE__), 'abc/def')
+    filename = FileName.new(basename, :add => :prohibit)
+    open(filename.create(:directory => :parent), 'w') { |f| f.puts "hello world" }
+    path = filename.create(:file => :overwrite)
+    File.exist?(path).should be_true
+    File.read(path).should == ''
+    FileUtils.rm_r(File.dirname(path))
+  end
+
   it "should conbine a few arguments" do
     filename = FileName.new('abc', 'def', 'ghi')
     filename.create.should == File.expand_path('abc/def/ghi')
@@ -208,6 +227,30 @@ describe FileName do
       NUMBER_TEST_REPEAT.times do |i|
         path = filename.create
         File.exist?(path).should be_true
+        FileUtils.rm_r(File.dirname(path))
+      end
+    end
+
+    it "should create empty file" do
+      basename = File.join(File.dirname(__FILE__), 'abc/def')
+      filename = FileName.new(basename, :file => :write)
+      NUMBER_TEST_REPEAT.times do |i|
+        path = filename.create
+        File.exist?(path).should be_true
+        File.read(path).should == ''
+        FileUtils.rm_r(File.dirname(path))
+      end
+    end
+
+    it "should overwrite empty file" do
+      basename = File.join(File.dirname(__FILE__), 'abc/def')
+      filename0 = FileName.new(basename, :add => :prohibit, :directory => :parent)
+      filename = FileName.new(basename, :add => :prohibit, :file => :overwrite)
+      NUMBER_TEST_REPEAT.times do |i|
+        open(filename0.create, 'w') { |f| f.puts "hello world" }
+        path = filename.create
+        File.exist?(path).should be_true
+        File.read(path).should == ''
         FileUtils.rm_r(File.dirname(path))
       end
     end
