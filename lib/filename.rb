@@ -47,6 +47,9 @@ class FileName
   #  which is set by an option :format.
   #  If we set { :a => 1, :b => 2 } for :data option,
   #  we can use @a and @b in proc object set by :format option.
+  #
+  # [:filter]
+  #  We specify filters :before and after for basename without suffix, which is got by File.basename(path, ".*")
   # 
   # [:extension]
   #  Default value of the option of FileName#create.
@@ -66,7 +69,8 @@ class FileName
       opts = {}
     end
     path = File.join(basepath, *rest)
-    if opts[:path] == :relative
+    @relative_path_p = (opts[:path] == :relative)
+    if @relative_path_p
       @basepath = path
     else
       @basepath = File.expand_path(path)
@@ -94,22 +98,27 @@ class FileName
         @data.instance_variable_set("@#{key}", val)
       end
     end
+    @filter = opts[:filter] || {}
   end
 
-  def get_basepath(extension = nil)
+  def get_basepath(basepath, extension = nil)
     if extension
       extension = '.' + extension unless extension[0] == '.'
-      oldext = File.extname(@basepath)
+      oldext = File.extname(basepath)
       if oldext.size > 0
-        @basepath.sub(Regexp.new("\\#{oldext}$"), extension)
+        basepath.sub(Regexp.new("\\#{oldext}$"), extension)
       else
-        @basepath + extension
+        basepath + extension
       end
     else
-      @basepath
+      basepath
     end
   end
   private :get_basepath
+
+  def relative_path?
+    @relative_path_p
+  end
 
   def create_time_addition(t)
     case @format
@@ -219,9 +228,23 @@ class FileName
   end
   private :write_file
 
+  def filter_exec(filter, path)
+    dir, basename = File.split(path)
+    extname = File.extname(basename)
+    basename_new = filter.call(basename.sub(/#{extname}$/, "")) + extname
+    if relative_path? && dir == "."
+      basename_new
+    else
+      File.join(dir, basename_new)
+    end
+  end
+  private :filter_exec
+
   # The options are following:
   # [:extension (String of extension)]
   #  If we want to change extension, we set the value of the option.
+  #  Note that if we specify "txt" as :extension option, generated filesame is the format "SOME_STRING.txt";
+  #  that is, this method adds "." + (specified extension).
   # 
   # [:add (:always, :auto, or :prohibit)]
   #  We specify if the additional part is used.
@@ -239,7 +262,11 @@ class FileName
   #  If the value is :write and the file does not exist, we create an empty file.
   #  If the value is nil, we do nothing.
   def create(opts = {})
-    base = get_basepath(get_option_create(opts, :extension))
+    basepath = @basepath
+    if @filter[:before]
+      basepath = filter_exec(@filter[:before], basepath)
+    end
+    base = get_basepath(basepath, get_option_create(opts, :extension))
     opt_add = get_option_create(opts, :add)
     if addition = get_addition(opt_add, base)
       path = add_addition(base, addition)
@@ -253,6 +280,9 @@ class FileName
       path
     else
       path = base
+    end
+    if @filter[:after]
+      path = filter_exec(@filter[:after], path)
     end
     create_directory(path, get_option_create(opts, :directory))
     write_file(path, get_option_create(opts, :file))
