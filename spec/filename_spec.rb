@@ -180,6 +180,23 @@ describe FileName do
     FileName.create('abc', 'def', 'ghi', :path => :relative, :add => :prohibit).should == 'abc/def/ghi'
   end
 
+  it "should execute before filter" do
+    FileName.create("name.txt", :filter => { :before => lambda { |basename| basename + "_before" } }, :add => :prohibit, :path => :relative).should == "name_before.txt"
+  end
+
+  it "should execute after filter" do
+    FileName.create("name.txt", :filter => { :after => lambda { |basename| basename + "_after" } }, :add => :prohibit, :path => :relative).should == "name_after.txt"
+  end
+
+  it "should execute before and after filters" do
+    FileName.create("name.txt",
+                    :filter => {
+                      :before => lambda { |basename| "before_" + basename },
+                      :after => lambda { |basename| basename + "_after" }
+                    },
+                    :add => :prohibit, :path => :relative).should == "before_name_after.txt"
+  end
+
   context "when we set the default options of FileName#create" do
     NUMBER_TEST_REPEAT = 3
     
