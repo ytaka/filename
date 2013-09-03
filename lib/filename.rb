@@ -1,3 +1,4 @@
+require "filename/version"
 autoload :FileUtils, 'fileutils'
 
 # 
