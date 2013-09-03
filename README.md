@@ -188,6 +188,19 @@ We can use the variables in proc object for an option :format.
 In the above example we prepare the instance variable "@a = 3"
 and use @a in proc object specified by an option :format.
 
+### Two filters: :before and :after
+
+Before and after all generation processes, we can filter basename without extension.
+
+    require 'filename'
+    FileName.create("name.txt",
+                    :filter => {
+                    :before => lambda { |basename| "before_" + basename },
+                    :after => lambda { |basename| basename + "_after" }
+                },
+                :add => :prohibit, :path => :relative)
+    # => "before_name_after.txt"
+
 ### Options of FileName#new, FileName#create, and FileName.create
 
 If we set options of FileName#create to FileName#new,
