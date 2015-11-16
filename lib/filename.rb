@@ -343,7 +343,7 @@ class FileName
   end
 
   class Manage
-    @@filename_directory = File.join(ENV['HOME'], '.filename_gem')
+    @@filename_directory = File.join(ENV['HOME'] || '', '.filename_gem')
     @@configuration = nil
 
     CONF_DIRECTORY = 'conf'
