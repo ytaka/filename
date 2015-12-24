@@ -49,7 +49,7 @@ class FileName
   #  we can use @a and @b in proc object set by :format option.
   #
   # [:filter]
-  #  We specify filters :before and after for basename without suffix, which is got by File.basename(path, ".*")
+  #  We specify filters :before and :after for basename without suffix, which is got by File.basename(path, ".*")
   # 
   # [:extension]
   #  Default value of the option of FileName#create.
